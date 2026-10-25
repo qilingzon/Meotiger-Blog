@@ -1,0 +1,165 @@
+---
+import '@fontsource/fusion-pixel-12px-proportional-sc/400.css';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE, THEMES, THEME_STORAGE_KEY } from '../config';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = SITE.description } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} · ${SITE.nameEn}`;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="pink-soft">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preload" as="image" href="/assets/tiger-pink.png" />
+    <script is:inline>
+      // 防闪烁：首帧前确定主题。?theme= 参数优先于 localStorage（用于分享带主题的链接），不写入存储。
+      // 加载界面为七色轮换，无需按主题挑变体；会话内只展示一次。
+      (function () {
+        var t = 'pink-soft';
+        try {
+          t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('tiger-theme') || 'pink-soft';
+        } catch (e) {}
+        if (t !== 'pink-soft' && t !== 'purple-pixel' && t !== 'lumen-cave') t = 'pink-soft';
+        document.documentElement.dataset.theme = t;
+        var seen = null;
+        try {
+          seen = sessionStorage.getItem('tiger-splash-seen');
+        } catch (e) {}
+        if (seen) document.documentElement.classList.add('no-splash');
+        // 各处萌虎每次访问随机一只（停留期间稳定）：成对位两只颜色必不同。
+        // 新增随机虎位时在 slots 里登记，容器用 <TigerRandom slotName="..."> 渲染
+        var V = ['pink', 'purple', 'wild', 'cyan', 'gold', 'blue', 'green'];
+        var css = '';
+        function solo(slot) {
+          css += '.tiger-pick--' + slot + ' .tiger-pick__img{opacity:0}.tiger-pick--' + slot + ' .tiger-pick__img--' + V[Math.floor(Math.random() * 7)] + '{opacity:1}';
+        }
+        function pair(a, b) {
+          var i = Math.floor(Math.random() * 7);
+          var j = Math.floor(Math.random() * 6);
+          if (j >= i) j++;
+          css += '.tiger-pick--' + a + ' .tiger-pick__img{opacity:0}.tiger-pick--' + a + ' .tiger-pick__img--' + V[i] + '{opacity:1}';
+          css += '.tiger-pick--' + b + ' .tiger-pick__img{opacity:0}.tiger-pick--' + b + ' .tiger-pick__img--' + V[j] + '{opacity:1}';
+        }
+        pair('hero-big', 'hero-small');
+        solo('header');
+        solo('tip');
+        pair('footer-a', 'footer-b');
+        var st = document.createElement('style');
+        st.textContent = css;
+        document.head.appendChild(st);
+        // 标签页 favicon 也随机一只（link[rel=icon] 在本脚本之前；无 JS 时兜底 favicon.png 粉虎）
+        var icon = document.querySelector('link[rel="icon"]');
+        if (icon) icon.href = '/favicon-tiger-' + V[Math.floor(Math.random() * 7)] + '.png';
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="splash" class="splash" aria-hidden="true">
+      <div class="splash__inner">
+        <div class="splash__pond">
+          <span class="splash__bubble splash__bubble--1"></span>
+          <span class="splash__bubble splash__bubble--2"></span>
+          <span class="splash__bubble splash__bubble--3"></span>
+          <img class="splash__tiger splash__tiger--1" src="/assets/tiger-pink.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--2" src="/assets/tiger-purple.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--3" src="/assets/tiger-wild.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--4" src="/assets/tiger-cyan.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--5" src="/assets/tiger-gold.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--6" src="/assets/tiger-blue.png" alt="" width="150" height="196" />
+          <img class="splash__tiger splash__tiger--7" src="/assets/tiger-green.png" alt="" width="150" height="196" />
+        </div>
+        <div class="splash__bar"><i></i></div>
+        <p class="splash__text">正在跑向池塘</p>
+      </div>
+    </div>
+    <script is:inline>
+      // 加载界面：load 后至少展示 0.7s 再淡出；本会话不再重复；3s 兜底强退。
+      (function () {
+        var el = document.getElementById('splash');
+        if (!el) return;
+        if (document.documentElement.classList.contains('no-splash')) {
+          el.remove();
+          return;
+        }
+        var t0 = Date.now();
+        var done = false;
+        function hide() {
+          if (done) return;
+          done = true;
+          el.classList.add('splash--out');
+          try {
+            sessionStorage.setItem('tiger-splash-seen', '1');
+          } catch (e) {}
+          setTimeout(function () {
+            el.remove();
+          }, 450);
+        }
+        function ready() {
+          var min =
+            matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
+          setTimeout(hide, Math.max(0, min - (Date.now() - t0)));
+        }
+        if (document.readyState === 'complete') ready();
+        else window.addEventListener('load', ready);
+        setTimeout(hide, 3000);
+        window.addEventListener('pageshow', function (e) {
+          if (e.persisted) hide();
+        });
+      })();
+    </script>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <script is:inline define:vars={{ THEMES, THEME_STORAGE_KEY }}>
+      // 主题循环切换（事件委托，全站生效）
+      (function () {
+        var themes = THEMES;
+        function currentTheme() {
+          return (
+            themes.find(function (t) {
+              return t.id === document.documentElement.dataset.theme;
+            }) || themes[0]
+          );
+        }
+        function updateSwitcher() {
+          var btn = document.getElementById('theme-switcher');
+          if (!btn) return;
+          var cur = currentTheme();
+          btn.querySelector('.theme-switcher__dot').style.background = cur.dot;
+          var name = btn.querySelector('.theme-switcher__name');
+          if (name) name.textContent = cur.label;
+        }
+        document.addEventListener('click', function (e) {
+          var btn = e.target.closest('#theme-switcher');
+          if (!btn) return;
+          var ids = themes.map(function (t) {
+            return t.id;
+          });
+          var next = ids[(ids.indexOf(currentTheme().id) + 1) % ids.length];
+          document.documentElement.dataset.theme = next;
+          try {
+            localStorage.setItem(THEME_STORAGE_KEY, next);
+          } catch (err) {}
+          updateSwitcher();
+        });
+        document.addEventListener('astro:after-swap', updateSwitcher);
+        updateSwitcher();
+      })();
+    </script>
+  </body>
+</html>

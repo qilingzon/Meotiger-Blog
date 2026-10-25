@@ -1,0 +1,38 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# 设计中间产物仅本地；萌虎 AI 源图（出处凭证）入库
+design-assets/*
+!design-assets/tiger/
+design-assets/tiger/*
+!design-assets/tiger/src.jpg
+
+# Mimosa hook 本地状态
+.mimosa/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+preview.log
+.env.local
+*.log
+
+# ZCode 会话本地文件
+.zcode/

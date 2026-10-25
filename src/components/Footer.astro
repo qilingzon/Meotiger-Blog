@@ -1,0 +1,19 @@
+---
+import { SITE } from '../config';
+import TigerRandom from './TigerRandom.astro';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <p>
+      <TigerRandom slotName="footer-a" size={22} />
+      <TigerRandom slotName="footer-b" size={22} />
+      © {year} {SITE.name} · 由两只随机出没的萌虎共同守护
+    </p>
+    <p>
+      用 <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> 构建 ·
+      吉祥物由 AI 绘制 · 前身是美西螈池塘
+    </p>
+  </div>
+</footer>

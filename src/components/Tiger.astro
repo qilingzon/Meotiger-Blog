@@ -1,0 +1,47 @@
+---
+/**
+ * 萌虎吉祥物组件：底图是用户 AI 绘制的立体像素萌虎（design-assets/tiger/src.jpg），
+ * 七色变体由 scripts/make-tiger.mjs 按亮度梯重上色生成（前身是美西螈池塘项目）：
+ * pink 粉（原图同款）/ purple 紫 / wild 棕 / cyan 青 / gold 金 / blue 蓝 / green 绿
+ */
+type Variant = 'pink' | 'purple' | 'wild' | 'cyan' | 'gold' | 'blue' | 'green';
+
+interface Props {
+  variant?: Variant;
+  size?: number;
+  /** 兼容旧 API（face/swim），现在两种模式都用同一头像图 */
+  mode?: 'face' | 'swim';
+  class?: string;
+}
+
+const { variant = 'pink', size = 64, class: className } = Astro.props;
+
+const srcs: Record<Variant, string> = {
+  pink: '/assets/tiger-pink.png',
+  purple: '/assets/tiger-purple.png',
+  wild: '/assets/tiger-wild.png',
+  cyan: '/assets/tiger-cyan.png',
+  gold: '/assets/tiger-gold.png',
+  blue: '/assets/tiger-blue.png',
+  green: '/assets/tiger-green.png',
+};
+const labels: Record<Variant, string> = {
+  pink: '粉色萌虎',
+  purple: '紫色萌虎',
+  wild: '野生色萌虎',
+  cyan: '青色萌虎',
+  gold: '金色萌虎',
+  blue: '蓝色萌虎',
+  green: '绿色萌虎',
+};
+---
+
+<img
+  src={srcs[variant]}
+  alt={labels[variant]}
+  width={size}
+  height={Math.round((size * 669) / 512)}
+  class:list={['tiger', className]}
+  loading="lazy"
+  decoding="async"
+/>

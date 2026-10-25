@@ -1,0 +1,234 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Tiger from '../components/Tiger.astro';
+import { SITE } from '../config';
+---
+
+<BaseLayout title="关于" description={`关于${SITE.name}和它的两位主人。`}>
+  <section class="container page">
+    <header class="page__head">
+      <h1>关于池塘</h1>
+      <p>两只萌虎，一个小池塘。</p>
+    </header>
+
+    <div class="grid">
+      <div class="card profile">
+        <Tiger variant="purple" mode="face" size={96} class="profile__avatar" />
+        <h2>紫虎</h2>
+        <p class="profile__role">技术担当 · 像素紫</p>
+        <ul>
+          <li>负责博客里所有带代码块的文章</li>
+          <li>口头禅：「这能用 CSS 变量解决」</li>
+          <li>梦想是刷出一只蓝色萌虎（进度 1/1200）</li>
+        </ul>
+      </div>
+      <div class="card profile">
+        <Tiger variant="pink" mode="face" size={96} class="profile__avatar" />
+        <h2>粉虎</h2>
+        <p class="profile__role">生活担当 · 奶油粉</p>
+        <ul>
+          <li>负责读书、随笔和一切没有代码的内容</li>
+          <li>口头禅：「这个可以写得可爱一点」</li>
+          <li>门面担当，吉祥物手办由 AI 画师定制</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card residents">
+      <h2>池塘住民</h2>
+      <p class="residents__hint">
+        除了两位博主，池塘里还住着这些家伙——五只配色出自站内的重上色管线，还有一只抹茶绿是限定彩蛋：
+      </p>
+      <div class="residents__grid">
+        <div class="resident">
+          <Tiger variant="cyan" size={72} />
+          <p class="resident__name">汽水</p>
+          <p class="resident__desc">青色系 · 蓝身体的冰汽水，气泡爱好者</p>
+        </div>
+        <div class="resident">
+          <Tiger variant="gold" size={72} />
+          <p class="resident__name">焦糖</p>
+          <p class="resident__desc">金色系 · 干饭担当，小鱼干罐第一个下嘴的总是它</p>
+        </div>
+        <div class="resident">
+          <Tiger variant="wild" size={72} />
+          <p class="resident__name">栗子</p>
+          <p class="resident__desc">野生色系 · 池塘前辈，据说是从竹林一路溜达来的</p>
+        </div>
+        <div class="resident">
+          <Tiger variant="blue" size={72} />
+          <p class="resident__name">蓝图</p>
+          <p class="resident__desc">蓝色系 · 1/1200 的传说，出生记见《养殖场参观记》</p>
+        </div>
+        <div class="resident">
+          <Tiger variant="green" size={72} />
+          <p class="resident__name">抹茶</p>
+          <p class="resident__desc">绿色系 · 限定彩蛋，从调色板里溜出来的最后一只</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card about-site">
+      <h2>关于这个站点</h2>
+      <p>
+        {SITE.name}（{SITE.nameEn}）是一个用
+        <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+        搭建的纯静态博客，灵感来自 Minecraft 里的美西螈，吉祥物换成了 AI 绘制的立体像素萌虎。除吉祥物外整站没有一张位图图片，其余美术都是内联 SVG 与 CSS。
+      </p>
+      <p>
+        右上角可以切换三套主题：<strong>粉虎·奶油</strong>（柔和现代）、<strong>紫虎·像素</strong>（方块复古）、<strong>荧光洞窟</strong>（深色夜读）。你的选择会被记住。
+      </p>
+    </div>
+
+    <div class="card contact">
+      <h2>找到我们</h2>
+      <p>池塘没有留言板，但欢迎通过这些方式丢鱼桶过来：</p>
+      <ul>
+        <li>邮箱：<a href="mailto:a@kj.al">a@kj.al</a></li>
+        <li>
+          GitHub：<a href="https://github.com/qilingzon/Tiger-Blog" target="_blank" rel="noopener">qilingzon/Tiger-Blog</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 44px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .page__head h1 {
+    font-size: 36px;
+    margin-bottom: 2px;
+  }
+
+  .page__head p {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .profile {
+    padding: 28px;
+    text-align: center;
+  }
+
+  .profile__avatar {
+    margin-bottom: 8px;
+  }
+
+  .profile h2 {
+    margin-bottom: 2px;
+  }
+
+  .profile__role {
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .profile ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 14.5px;
+  }
+
+  .profile li {
+    padding: 6px 0;
+    border-top: var(--border-w) dashed var(--border);
+  }
+
+  .profile li:first-child {
+    border-top: none;
+  }
+
+  .about-site,
+  .contact {
+    padding: 26px 30px;
+  }
+
+  .residents {
+    padding: 26px 30px;
+  }
+
+  .residents h2 {
+    margin-bottom: 4px;
+  }
+
+  .residents__hint {
+    color: var(--text-muted);
+    font-size: 14.5px;
+    margin-bottom: 18px;
+  }
+
+  .residents__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+
+  .resident {
+    text-align: center;
+    padding: 14px 10px;
+    background: var(--surface-2);
+    border: var(--border-w) solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .resident__name {
+    margin: 6px 0 2px;
+    font-family: var(--font-display);
+    font-size: 17px;
+    color: var(--text);
+  }
+
+  .resident__desc {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .about-site p,
+  .contact p {
+    color: var(--text-muted);
+  }
+
+  .about-site strong {
+    color: var(--text);
+  }
+
+  .contact ul {
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 900px) {
+    .residents__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 720px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .residents__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

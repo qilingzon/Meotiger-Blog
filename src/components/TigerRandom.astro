@@ -1,0 +1,43 @@
+---
+/**
+ * 每次访问随机一只萌虎（停留期间颜色稳定不闪）：
+ * 七张变体图同位叠加，<head> 引导脚本（BaseLayout.astro）首帧前注入 <style>，
+ * 隐藏全部并点亮随机命中的一只；无 JS 时兜底显示粉虎。
+ * slotName 需先在引导脚本的槽位登记里注册（如 hero-big / header / footer-a）。
+ */
+interface Props {
+  slotName: string;
+  size?: number;
+  class?: string;
+}
+
+const { slotName, size = 64, class: className } = Astro.props;
+
+const variants = ['pink', 'purple', 'wild', 'cyan', 'gold', 'blue', 'green'] as const;
+const files: Record<(typeof variants)[number], string> = {
+  pink: '/assets/tiger-pink.png',
+  purple: '/assets/tiger-purple.png',
+  wild: '/assets/tiger-wild.png',
+  cyan: '/assets/tiger-cyan.png',
+  gold: '/assets/tiger-gold.png',
+  blue: '/assets/tiger-blue.png',
+  green: '/assets/tiger-green.png',
+};
+const height = Math.round((size * 669) / 512);
+---
+
+<div class:list={['tiger-pick', `tiger-pick--${slotName}`, className]} style={`width:${size}px;height:${height}px;`}>
+  {
+    variants.map((v) => (
+      <img
+        class={`tiger-pick__img tiger-pick__img--${v}`}
+        src={files[v]}
+        alt=""
+        width={size}
+        height={height}
+        loading="lazy"
+        decoding="async"
+      />
+    ))
+  }
+</div>
