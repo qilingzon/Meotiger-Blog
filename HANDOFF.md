@@ -11,7 +11,7 @@
   - **文档重写**：README / README-CMS / AGENTS / HANDOFF；吉祥物源图入库 `design-assets/tiger/src.jpg`（用户 AI 自绘，出处凭证）
   - 吉祥物管线：`scripts/make-tiger.mjs`（泛洪抠底 + 近黑像素中性保眼睛 + 亮度 P5–P95 拉伸 + 粉虎固定饱和四阶锚点 #d64f7e→#fdd0e0）→ `public/assets/tiger-*.png` ×7（512×669 竖版）+ `favicon-tiger-*.png` ×7
   - 用户文章一字未动（旧文里的美西螈字样是历史内容，见 AGENTS.md）
-- 进度：功能与旧仓完全一致（含小白写作模式/块编辑器、CMS 全部修复）；build/截图验收进行中
+- 进度：功能与旧仓完全一致（含小白写作模式/块编辑器、CMS 全部修复）。**加载动画奔跑版（2026-10-25）**：小虎从左侧跑入、冲向右侧终点小池塘（wrapper `splash-cross` 横移 1.5s + 每只 `splash-run` 弹跳 0.5s + 影子缩放 + 落地灰尘），七色轮换 `splash-cycle` 的负延迟对位与"节流冻结时恰有一只完整可见"性质原样保留（弹跳全 0s 同相位，换色在任意跑位不穿帮）；reduced-motion 下停所有动画、粉虎静立场地中央。验收：build 过 + 三主题 splash 截图（preview/sp-pink|sp-purple|sp-lumen.png，抓拍用 `--virtual-time-budget=500`，1000 会连淡出一起放完抓空）。本地预览 4322 端口 `start-preview.ps1`（已入库）
 - 下一步（都需要用户参与）：
   - GitHub 建仓 `qilingzon/Tiger-Blog` 并 push（push 到远程属外发动作，先征得同意）
   - EdgeOne Pages 接新仓库；域名分配（替换 www.iqii.cn 还是新子域）用户定
