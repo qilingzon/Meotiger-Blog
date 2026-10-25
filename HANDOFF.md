@@ -12,6 +12,8 @@
   - 吉祥物管线：`scripts/make-tiger.mjs`（泛洪抠底 + 近黑像素中性保眼睛 + 亮度 P5–P95 拉伸 + 粉虎固定饱和四阶锚点 #d64f7e→#fdd0e0）→ `public/assets/tiger-*.png` ×7（512×669 竖版）+ `favicon-tiger-*.png` ×7
   - 用户文章一字未动（旧文里的美西螈字样是历史内容，见 AGENTS.md）
 - 进度：功能与旧仓完全一致（含小白写作模式/块编辑器、CMS 全部修复）。**加载动画奔跑版（2026-10-25）**：小虎从左侧跑入、冲向右侧终点小池塘（wrapper `splash-cross` 横移 1.5s + 每只 `splash-run` 弹跳 0.5s + 影子缩放 + 落地灰尘），七色轮换 `splash-cycle` 的负延迟对位与"节流冻结时恰有一只完整可见"性质原样保留（弹跳全 0s 同相位，换色在任意跑位不穿帮）；reduced-motion 下停所有动画、粉虎静立场地中央。验收：build 过 + 三主题 splash 截图（preview/sp-pink|sp-purple|sp-lumen.png，抓拍用 `--virtual-time-budget=500`，1000 会连淡出一起放完抓空）。本地预览 4322 端口 `start-preview.ps1`（已入库）
+- **同步：版本历史 + 一键回滚（2026-10-25）**：按用户指示「先改美西螈 CMS、再同步过来」——旧仓（Axolotl-Blog bfbe83b）开发的版本历史功能已全量移植本仓：边缘函数三路由（GET /api/history、GET /api/version?ref=、PUT /api/version 回滚；commits API 选分支参数是 **sha 不是 ref**，ref 仅接受 7-40 位十六进制）、app.js openHistoryModal（列表↔预览单弹窗，回滚后 editorGuard 放行重载）、cms.css hist-* 样式、README-CMS「写坏了？翻版本」小节。**移植同时把旧仓后发的 CMS 修复也带上**：撞名 409 保护（oldSlug 语义，本仓原来没有）、上游 404 透传 + 401/403 不透传（本仓原来是老版 catch）——移植后与本仓文件做品牌替换 diff 核对，语义逐行一致。验收复用旧仓的 API+点击走查结论（代码同源），本仓 build 通过。
+- 进度：**阶段 1-5 ✅ + 吉祥物家族/加载动画/搜索/移动端 ✅ + 萌虎 CMS（EdgeOne Pages 版）✅ + 版本历史/回滚 ✅**
 - 下一步（都需要用户参与）：
   - ~~GitHub 建仓~~ **已完成（2026-10-25）：`qilingzon/Meotiger-Blog`（用户命名，PUBLIC 对齐旧仓），master 已推送**
   - EdgeOne Pages 控制台新建项目接 `Meotiger-Blog` 仓库；域名分配（替换 www.iqii.cn 还是新子域）用户定

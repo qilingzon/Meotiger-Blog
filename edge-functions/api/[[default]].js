@@ -1,4 +1,4 @@
-// 美西螈 CMS · 边缘函数 API（EdgeOne Pages）
+// 萌虎 CMS · 边缘函数 API（EdgeOne Pages）
 // 单文件全能路由：/api/login、/api/session、/api/posts[/{slug}]、/api/media
 // 鉴权：环境变量账号密码 → HMAC 签名 token；GitHub 读写仅发生在服务端。
 // 出站请求安全约定：全部经 ghFetch()，基址为常量 api.github.com 且带白名单守卫，
@@ -11,7 +11,7 @@ const CFG = {
   pass: () => envGetter('CMS_PASSWORD'),
   secret: () => envGetter('CMS_SESSION_SECRET'),
   token: () => envGetter('CMS_GITHUB_TOKEN'),
-  repo: () => envGetter('CMS_REPO') || 'qilingzon/Axolotl-Blog',
+  repo: () => envGetter('CMS_REPO') || 'qilingzon/Meotiger-Blog',
   branch: () => envGetter('CMS_BRANCH') || 'master',
 };
 
@@ -171,7 +171,7 @@ async function ghFetch(segments, { method = 'GET', body, query = {} } = {}) {
     Authorization: `Bearer ${CFG.token()}`,
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'axolotl-cms',
+    'User-Agent': 'tiger-cms',
   };
   if (body !== undefined) headers['Content-Type'] = 'application/json';
   const res = await fetch(url, {
@@ -212,7 +212,7 @@ async function ghGraphQL(query, variables) {
     headers: {
       Authorization: `Bearer ${CFG.token()}`,
       'Content-Type': 'application/json',
-      'User-Agent': 'axolotl-cms',
+      'User-Agent': 'tiger-cms',
     },
     body: JSON.stringify({ query, variables }),
   });
@@ -254,13 +254,25 @@ export async function onRequest(context) {
     if (path.startsWith('/api/posts/')) {
       return await handlePostItem(method, path.slice('/api/posts/'.length), request);
     }
+    if (path.startsWith('/api/history/') && method === 'GET') {
+      return await handleHistory(path.slice('/api/history/'.length));
+    }
+    if (path.startsWith('/api/version/') && method === 'GET') {
+      return await handleVersionGet(path.slice('/api/version/'.length), url);
+    }
+    if (path.startsWith('/api/version/') && method === 'PUT') {
+      return await handleVersionRestore(path.slice('/api/version/'.length), request);
+    }
     if (path === '/api/media' && method === 'GET') return await handleListMedia();
     if (path === '/api/media' && method === 'POST') return await handleUploadMedia(request);
     if (path === '/api/media' && method === 'DELETE') return await handleDeleteMedia(url);
     return fail('接口不存在', 404);
   } catch (err) {
-    const status = err && err.status ? (err.status === 404 ? 500 : 502) : 500;
-    return fail('服务器开小差了：' + (err && err.message ? err.message : String(err)), status);
+    // 上游 404 原样透传（各 handler 已改写为中文文案）；其余上游错误按网关错误处理。
+    // 401/403 特意不透传——那是 GitHub 令牌问题，不是访客登录态问题，透传会误触发前端登出
+    const status = !err || !err.status ? 500 : err.status === 404 ? 404 : 502;
+    const msg = (err && err.message) || String(err);
+    return fail(status === 404 ? msg : '服务器开小差了：' + msg, status);
   }
 }
 
@@ -441,6 +453,11 @@ async function handlePostItem(method, slug, request) {
       throw e;
     });
     const isNew = !existing;
+    // 撞名保护：目标已存在且不是同一篇（改名撞别人 / 新建撞旧文）→ 拒绝，绝不静默覆盖
+    const oldSlug = String(input.oldSlug || '');
+    if (existing && oldSlug !== slug) {
+      return fail('该文件名已被占用，请换一个再保存', 409);
+    }
     await ghFetch(repoSegments('contents', filePath), {
       method: 'PUT',
       body: {
@@ -451,8 +468,7 @@ async function handlePostItem(method, slug, request) {
       },
     });
 
-    // slug 变更时删除旧文件
-    const oldSlug = String(input.oldSlug || '');
+    // slug 变更时删除旧文件（oldSlug 已在上方撞名保护处取出）
     if (oldSlug && oldSlug !== slug && SLUG_RE.test(oldSlug)) {
       const oldPath = `${POSTS_DIR}/${oldSlug}.md`;
       const old = await ghFetch(repoSegments('contents', oldPath)).catch(() => null);
@@ -490,6 +506,80 @@ async function handlePostItem(method, slug, request) {
   }
 
   return fail('不支持的请求方法', 405);
+}
+
+// ---------- 版本历史接口（贴 GitHub commits API，全程只读 + 回滚复用 contents PUT） ----------
+
+/** git ref 白名单：仅接受 commit sha（7-40 位十六进制），防任意 ref/分支注入 */
+const SHA_RE = /^[0-9a-f]{7,40}$/i;
+
+/** GET /api/history/{slug}：这篇文章最近 15 次提交（裁剪字段，不透传 GitHub 原始对象） */
+async function handleHistory(slug) {
+  if (!SLUG_RE.test(slug)) return fail('文件名只能包含字母、数字、点、下划线和短横线');
+  const filePath = `${POSTS_DIR}/${slug}.md`;
+  const commits = await ghFetch(repoSegments('commits'), {
+    // commits API 选分支的参数是 sha（不是 contents 用的 ref），必须显式传，否则落在默认分支上查不到
+    query: { path: filePath, per_page: '15', sha: CFG.branch() },
+  });
+  const versions = (Array.isArray(commits) ? commits : []).map((c) => ({
+    sha: c.sha,
+    short: String(c.sha || '').slice(0, 7),
+    date: (c.commit && c.commit.author && c.commit.author.date) || '',
+    message: String((c.commit && c.commit.message) || '')
+      .split('\n')[0]
+      .slice(0, 80),
+    author: (c.commit && c.commit.author && c.commit.author.name) || '',
+  }));
+  return json({ versions });
+}
+
+/** GET /api/version/{slug}?ref=<sha>：取某一版的完整文章（解析 frontmatter，同单篇 GET 口径） */
+async function handleVersionGet(slug, url) {
+  if (!SLUG_RE.test(slug)) return fail('文件名只能包含字母、数字、点、下划线和短横线');
+  const ref = String(url.searchParams.get('ref') || '');
+  if (!SHA_RE.test(ref)) return fail('版本号不合法');
+  const filePath = `${POSTS_DIR}/${slug}.md`;
+  const item = await ghFetch(repoSegments('contents', filePath), { query: { ref } }).catch((e) => {
+    if (e.status === 404) e.message = '这一版里还没有这篇文章';
+    throw e;
+  });
+  const text = dec.decode(b64ToBytes(item.content || ''));
+  const { meta, body } = parseFrontmatter(text);
+  return json({ slug, versionSha: ref, ...normalizeMeta(meta), body });
+}
+
+/** PUT /api/version/{slug}（body: {ref}）：把文件按字节原样恢复到某一版，commit 说明自动生成 */
+async function handleVersionRestore(slug, request) {
+  if (!SLUG_RE.test(slug)) return fail('文件名只能包含字母、数字、点、下划线和短横线');
+  let input;
+  try {
+    input = await request.json();
+  } catch {
+    return fail('请求格式错误');
+  }
+  const ref = String((input && input.ref) || '');
+  if (!SHA_RE.test(ref)) return fail('版本号不合法');
+  const filePath = `${POSTS_DIR}/${slug}.md`;
+  const version = await ghFetch(repoSegments('contents', filePath), { query: { ref } }).catch((e) => {
+    if (e.status === 404) e.message = '这一版里还没有这篇文章';
+    throw e;
+  });
+  const existing = await ghFetch(repoSegments('contents', filePath)).catch((e) => {
+    if (e.status === 404) e.message = '文章不存在';
+    throw e;
+  });
+  const title = parseFrontmatter(dec.decode(b64ToBytes(version.content || ''))).meta.title;
+  await ghFetch(repoSegments('contents', filePath), {
+    method: 'PUT',
+    body: {
+      message: `CMS: 回滚《${title || slug}》到 ${ref.slice(0, 7)} 版本`,
+      // contents GET 返回的 base64 带换行，PUT 前清掉空白（与 b64ToBytes 同口径）
+      content: String(version.content || '').replace(/\s+/g, ''),
+      branch: CFG.branch(),
+      sha: existing.sha,
+    },
+  });
+  return json({ ok: true, slug });
 }
 
 // ---------- 媒体接口 ----------
