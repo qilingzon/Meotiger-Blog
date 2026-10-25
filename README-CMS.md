@@ -7,7 +7,7 @@
 ## 开始前
 
 - 📱 手机可以完成全部操作；有电脑更舒服一点（两个网站来回切换方便）
-- 你的博客仓库是 GitHub 上的 `qilingzon/Tiger-Blog`（不用管它，教程会带你去连）
+- 你的博客仓库是 GitHub 上的 `qilingzon/Meotiger-Blog`（不用管它，教程会带你去连）
 
 ---
 
@@ -18,7 +18,7 @@
 1. 浏览器打开 **https://console.cloud.tencent.com/edgeone/pages**
    - 没有腾讯云账号？微信扫码登录即可
 2. 点 **「创建项目」** → 选 **「从 Git 仓库导入」**（第一次会让你授权 GitHub，点同意授权）
-3. 选中仓库 `Tiger-Blog`，按下表填写（**其余保持默认**）：
+3. 选中仓库 `Meotiger-Blog`，按下表填写（**其余保持默认**）：
 
    | 项目 | 填什么 |
    |---|---|

@@ -10,7 +10,7 @@ import { execSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
-const REPO_DEFAULT = 'qilingzon/Tiger-Blog';
+const REPO_DEFAULT = 'qilingzon/Meotiger-Blog';
 const BRANCH_DEFAULT = 'master';
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });

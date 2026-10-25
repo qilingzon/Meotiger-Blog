@@ -13,8 +13,8 @@
   - 用户文章一字未动（旧文里的美西螈字样是历史内容，见 AGENTS.md）
 - 进度：功能与旧仓完全一致（含小白写作模式/块编辑器、CMS 全部修复）。**加载动画奔跑版（2026-10-25）**：小虎从左侧跑入、冲向右侧终点小池塘（wrapper `splash-cross` 横移 1.5s + 每只 `splash-run` 弹跳 0.5s + 影子缩放 + 落地灰尘），七色轮换 `splash-cycle` 的负延迟对位与"节流冻结时恰有一只完整可见"性质原样保留（弹跳全 0s 同相位，换色在任意跑位不穿帮）；reduced-motion 下停所有动画、粉虎静立场地中央。验收：build 过 + 三主题 splash 截图（preview/sp-pink|sp-purple|sp-lumen.png，抓拍用 `--virtual-time-budget=500`，1000 会连淡出一起放完抓空）。本地预览 4322 端口 `start-preview.ps1`（已入库）
 - 下一步（都需要用户参与）：
-  - GitHub 建仓 `qilingzon/Tiger-Blog` 并 push（push 到远程属外发动作，先征得同意）
-  - EdgeOne Pages 接新仓库；域名分配（替换 www.iqii.cn 还是新子域）用户定
+  - ~~GitHub 建仓~~ **已完成（2026-10-25）：`qilingzon/Meotiger-Blog`（用户命名，PUBLIC 对齐旧仓），master 已推送**
+  - EdgeOne Pages 控制台新建项目接 `Meotiger-Blog` 仓库；域名分配（替换 www.iqii.cn 还是新子域）用户定
   - CMS 四个环境变量重新配置（`node scripts/cms-setup.mjs` 或 `admin/setup.html`；**不要复用旧仓凭据**）
   - 页脚备案号（用户已备案，号码未提供——`Footer.astro` 加一行即可）
   - 旧仓 D:\zcodework\blog 的萌虎试装工作区改动：等用户确认后回退（内容已全部保存在本项目）
